@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boutique Maquis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      background-color: #f5f6fa;
+      color: #2f3640;
+    }
+    header {
+      background-color: #273c75;
+      padding: 1rem;
+      color: white;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    .search-filter {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem;
+      background-color: white;
+      margin: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .search-filter input,
+    .search-filter select {
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .product {
+      background-color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .product img {
+      width: 100%;
+      max-height: 150px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .product h3 {
+      margin: 0.5rem 0;
+    }
+    .product button {
+      background-color: #44bd32;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .cart {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #273c75;
+      color: white;
+      padding: 0.8rem 1.2rem;
+      border-radius: 30px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Boutique Maquis & Hôtels</h1>
+  </header>
+
+  <div class="search-filter">
+    <input type="text" id="search" placeholder="Rechercher un produit..." oninput="filterProducts()" />
+    <select id="category" onchange="filterProducts()">
+      <option value="">Toutes les catégories</option>
+      <option value="riz">Riz</option>
+      <option value="pâtes">Pâtes</option>
+      <option value="conserves">Conserves</option>
+      <option value="huiles">Huiles</option>
+      <option value="épices">Épices</option>
+    </select>
+  </div>
+
+  <div class="products" id="product-list">
+    <!-- Produits affichés ici -->
+  </div>
+
+  <div class="cart" onclick="envoyerWhatsApp()">Voir le panier</div>
+
+  <script>
+    const produits = [
+      { nom: "Riz parfumé 5kg", prix: 4500, image: "https://via.placeholder.com/200", categorie: "riz" },
+      { nom: "Spaghetti 500g", prix: 600, image: "https://via.placeholder.com/200", categorie: "pâtes" },
+      { nom: "Huile 1L", prix: 1500, image: "https://via.placeholder.com/200", categorie: "huiles" },
+      { nom: "Sardine boîte", prix: 800, image: "https://via.placeholder.com/200", categorie: "conserves" },
+      { nom: "Cube Maggi x24", prix: 1200, image: "https://via.placeholder.com/200", categorie: "épices" },
+    ];
+
+    let panier = [];
+
+    function afficherProduits(filtrés = produits) {
+      const conteneur = document.getElementById("product-list");
+      conteneur.innerHTML = "";
+      filtrés.forEach(p => {
+        conteneur.innerHTML += `
+          <div class="product">
+            <img src="${p.image}" alt="${p.nom}" />
+            <h3>${p.nom}</h3>
+            <p><strong>${p.prix} Fcfa</strong></p>
+            <button onclick='ajouterAuPanier("${p.nom}", ${p.prix})'>Ajouter</button>
+          </div>`;
+      });
+    }
+
+    function ajouterAuPanier(nom, prix) {
+      panier.push({ nom, prix });
+      alert(`${nom} ajouté au panier !`);
+    }
+
+    function envoyerWhatsApp() {
+      if (panier.length === 0) {
+        alert("Votre panier est vide");
+        return;
+      }
+      let message = "Bonjour, je souhaite commander :\n";
+      let total = 0;
+      panier.forEach(p => {
+        message += `- ${p.nom} : ${p.prix} Fcfa\n`;
+        total += p.prix;
+      });
+      message += `\nTotal : ${total} Fcfa`;
+      const url = `https://wa.me/2250710954443?text=${encodeURIComponent(message)}`;
+      window.open(url);
+    }
+
+    function filterProducts() {
+      const search = document.getElementById("search").value.toLowerCase();
+      const cat = document.getElementById("category").value;
+      const results = produits.filter(p =>
+        p.nom.toLowerCase().includes(search) &&
+        (cat === "" || p.categorie === cat)
+      );
+      afficherProduits(results);
+    }
+
+    afficherProduits();
+  </script>
+</body>
+</html>
