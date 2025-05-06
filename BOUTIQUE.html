@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pâtes, Riz & Plats cuisinés</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+  <!-- En-tête -->
+  <header class="bg-white shadow p-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold">Le Fourgon - Épicerie</h1>
+      <nav>
+        <a href="#" class="mx-2 text-gray-700">Accueil</a>
+        <a href="#" class="mx-2 text-gray-700">Produits</a>
+        <a href="#" class="mx-2 text-gray-700">Panier (<span id="cart-count">0</span>)</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Contenu principal -->
+  <main class="container mx-auto mt-6 flex">
+    <!-- Filtres -->
+    <aside class="w-1/4 pr-4">
+      <h2 class="text-lg font-semibold mb-2">Filtres</h2>
+      <div class="mb-4">
+        <label class="block font-medium">Catégorie</label>
+        <select id="categoryFilter" class="w-full border rounded p-2" onchange="filterProducts()">
+          <option value="">Toutes</option>
+          <option value="Pâtes">Pâtes</option>
+          <option value="Riz">Riz</option>
+          <option value="Huiles">Huiles</option>
+          <option value="Condiments">Condiments</option>
+          <option value="Boissons">Boissons</option>
+          <option value="Charbon">Charbon</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="block font-medium">Recherche</label>
+        <input type="text" id="searchInput" oninput="filterProducts()" class="w-full border rounded p-2" placeholder="Nom du produit...">
+      </div>
+    </aside>
+
+    <!-- Liste des produits -->
+    <section class="w-3/4 grid grid-cols-3 gap-6" id="product-list"></section>
+  </main>
+
+  <!-- Bouton WhatsApp -->
+  <div class="fixed bottom-6 right-6">
+    <button onclick="sendToWhatsApp()" class="bg-green-500 text-white px-4 py-2 rounded shadow-lg">
+      Commander sur WhatsApp
+    </button>
+  </div>
+
+  <script>
+    const produits = [
+      { nom: "Pâtes complètes bio (500g)", prix: 1950, categorie: "Pâtes" },
+      { nom: "Riz local 5 kg", prix: 4500, categorie: "Riz" },
+      { nom: "Huile de palme 1L", prix: 1200, categorie: "Huiles" },
+      { nom: "Huile végétale 5L", prix: 6000, categorie: "Huiles" },
+      { nom: "Pâtes alimentaires 1 kg", prix: 1800, categorie: "Pâtes" },
+      { nom: "Tomates concentrées 400g", prix: 900, categorie: "Condiments" },
+      { nom: "Cubes Maggi (100 unités)", prix: 1500, categorie: "Condiments" },
+      { nom: "Sel iodé 1 kg", prix: 400, categorie: "Condiments" },
+      { nom: "Oignons filets 5 kg", prix: 3000, categorie: "Condiments" },
+      { nom: "Ail filet 1 kg", prix: 1000, categorie: "Condiments" },
+      { nom: "Poisson séché 500g", prix: 3500, categorie: "Condiments" },
+      { nom: "Charbon de bois sac 25 kg", prix: 3500, categorie: "Charbon" },
+      { nom: "Eau minérale 1,5L (pack de 6)", prix: 1500, categorie: "Boissons" },
+      { nom: "Jus fruité 1L (carton de 12)", prix: 7200, categorie: "Boissons" },
+      { nom: "Bière locale (carton de 24)", prix: 13200, categorie: "Boissons" }
+    ];
+
+    let cart = [];
+
+    function displayProducts(filtered = produits) {
+      const section = document.getElementById("product-list");
+      section.innerHTML = "";
+      filtered.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "bg-white p-4 rounded shadow";
+        div.innerHTML = `
+          <img src="https://via.placeholder.com/150" alt="Produit" class="w-full h-40 object-cover rounded">
+          <h3 class="mt-2 font-semibold">${p.nom}</h3>
+          <p class="font-bold mt-1">${p.prix.toLocaleString()} Fcfa</p>
+          <button onclick="addToCart('${p.nom}', ${p.prix})" class="mt-2 bg-green-600 text-white px-3 py-1 rounded">Ajouter</button>
+        `;
+        section.appendChild(div);
+      });
+    }
+
+    function addToCart(name, price) {
+      cart.push({ name, price });
+      document.getElementById("cart-count").textContent = cart.length;
+    }
+
+    function sendToWhatsApp() {
+      if (cart.length === 0) {
+        alert("Votre panier est vide.");
+        return;
+      }
+      let message = "Bonjour, je souhaite commander :\n";
+      cart.forEach(item => {
+        message += `- ${item.name} – ${item.price.toLocaleString()} Fcfa\n`;
+      });
+      const encodedMsg = encodeURIComponent(message);
+      window.open(`https://wa.me/2250710954443?text=${encodedMsg}`, '_blank');
+    }
+
+    function filterProducts() {
+      const category = document.getElementById("categoryFilter").value.toLowerCase();
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = produits.filter(p => {
+        return (!category || p.categorie.toLowerCase() === category) && p.nom.toLowerCase().includes(search);
+      });
+      displayProducts(filtered);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      displayProducts();
+    });
+  </script>
+</body>
+</html>
