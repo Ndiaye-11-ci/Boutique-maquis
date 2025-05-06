@@ -1,0 +1,208 @@
+<!DOCTYPE html><html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boutique Maquis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      background-color: #fffbea;
+      color: #2f2f2f;
+      animation: fadeIn 1s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    header {
+      background-color: #e84118;
+      padding: 1rem;
+      color: white;
+      text-align: center;
+      animation: slideInTop 1s ease-in-out;
+    }
+    @keyframes slideInTop {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    .search-filter {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem;
+      background-color: white;
+      margin: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    .search-filter input,
+    .search-filter select {
+      padding: 0.6rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .product {
+      background-color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.3s ease;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    .product:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    .product img {
+      width: 100%;
+      max-height: 140px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .product h3 {
+      margin: 0.5rem 0;
+      font-size: 1rem;
+      text-align: center;
+    }
+    .product p {
+      font-size: 0.95rem;
+    }
+    .product button {
+      background-color: #fbc531;
+      color: #000;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      transition: background-color 0.3s;
+    }
+    .product button:hover {
+      background-color: #ffdd57;
+    }
+    .cart {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #e84118;
+      color: white;
+      padding: 0.8rem 1.2rem;
+      border-radius: 30px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+      z-index: 1000;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.4rem;
+      }
+      .product h3 {
+        font-size: 0.95rem;
+      }
+      .product p,
+      .product button {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Boutique Maquis</h1>
+  </header>  <div class="search-filter">
+    <input type="text" id="search" placeholder="Rechercher un produit..." oninput="filterProducts()" />
+    <select id="category" onchange="filterProducts()">
+      <option value="">Toutes les catégories</option>
+      <option value="riz">Riz</option>
+      <option value="pâtes">Pâtes</option>
+      <option value="conserves">Conserves</option>
+      <option value="huiles">Huiles</option>
+      <option value="épices">Épices</option>
+    </select>
+  </div>  <div class="products" id="product-list">
+    <!-- Produits affichés ici -->
+  </div>  <div class="cart" onclick="envoyerWhatsApp()">Voir le panier</div>  <script>
+    const produits = [
+      { nom: "Riz parfumé 5kg", prix: 4500, image: "https://i.ibb.co/4p63m8Y/riz.jpg", categorie: "riz" },
+      { nom: "Spaghetti 500g", prix: 600, image: "https://i.ibb.co/mcRp2Fw/spaghetti.jpg", categorie: "pâtes" },
+      { nom: "Huile de table 1L", prix: 1500, image: "https://i.ibb.co/WB3F3Pw/huile.jpg", categorie: "huiles" },
+      { nom: "Sardines boîte 125g", prix: 800, image: "https://i.ibb.co/ZXfwrHs/sardines.jpg", categorie: "conserves" },
+      { nom: "Cube Maggi x24", prix: 1200, image: "https://i.ibb.co/pzhCNcd/maggi.jpg", categorie: "épices" },
+    ];
+
+    let panier = [];
+
+    function afficherProduits(filtrés = produits) {
+      const conteneur = document.getElementById("product-list");
+      conteneur.innerHTML = "";
+      filtrés.forEach(p => {
+        conteneur.innerHTML += `
+          <div class="product">
+            <img src="${p.image}" alt="${p.nom}" />
+            <h3>${p.nom}</h3>
+            <p><strong>${p.prix} Fcfa</strong></p>
+            <button onclick='ajouterAuPanier("${p.nom}", ${p.prix})'>Ajouter</button>
+          </div>`;
+      });
+    }
+
+    function ajouterAuPanier(nom, prix) {
+      panier.push({ nom, prix });
+      alert(`${nom} ajouté au panier !`);
+    }
+
+    function envoyerWhatsApp() {
+      if (panier.length === 0) {
+        alert("Votre panier est vide");
+        return;
+      }
+      let message = "Bonjour, je souhaite commander :\n";
+      let total = 0;
+      panier.forEach(p => {
+        message += `- ${p.nom} : ${p.prix} Fcfa\n`;
+        total += p.prix;
+      });
+      message += `\nTotal : ${total} Fcfa`;
+      const url = `https://wa.me/2250710954443?text=${encodeURIComponent(message)}`;
+      window.open(url);
+    }
+
+    function filterProducts() {
+      const search = document.getElementById("search").value.toLowerCase();
+      const cat = document.getElementById("category").value;
+      const results = produits.filter(p =>
+        p.nom.toLowerCase().includes(search) &&
+        (cat === "" || p.categorie === cat)
+      );
+      afficherProduits(results);
+    }
+
+    afficherProduits();
+  </script></body>
+</html>
